@@ -1,0 +1,115 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  name: jay
+
+variables:
+  working-path: $(System.DefaultWorkingDirectory)/Dev
+
+parameters:
+  - name: environments
+    displayName: Env
+    type: string
+    default: dev
+    values:
+      - dev
+      - qa
+      - prod
+
+stages:
+# ---------------- Stage 1: Terraform Init + Plan ----------------
+- stage: TerraformInitPlan
+  displayName: "Terraform Init & Plan"
+  jobs:
+    - job: TerraformInitPlanJob
+      displayName: "Terraform Init & Plan Job"
+      pool:
+        name: jay
+      steps:
+        - task: TerraformInstaller@1
+          inputs:
+            terraformVersion: 'latest'
+
+        - task: TerraformTask@5
+          displayName: 'Terraform Init'
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(working-path)'
+            backendServiceArm: 'jay'
+            backendAzureRmResourceGroupName: 'jaydeep_rg'
+            backendAzureRmStorageAccountName: 'jaydeepsa'
+            backendAzureRmContainerName: 'tfstate'
+            backendAzureRmKey: 'terraform.tfstate'
+
+        - task: TerraformTask@5
+          displayName: 'Terraform Plan'
+          inputs:
+            provider: 'azurerm'
+            command: 'plan'
+            workingDirectory: '$(working-path)'
+            environmentServiceNameAzureRM: 'jay'
+
+# ---------------- Stage 2: Security Scan (tfsec) ----------------
+- stage: SecurityScan
+  displayName: "Terraform Security Scan"
+  jobs:
+    - job: ScanningJob
+      displayName: "Scanning Terraform Code"
+      pool:
+        name: jay
+      steps:
+        - task: tfsec@1
+          inputs:
+            version: 'v1.26.0'
+            debug: true
+            dir: '$(working-path)'
+
+# ---------------- Stage 3: Manual Validation ----------------
+- stage: ManualValidation
+  displayName: "Manual Approval"
+  jobs:
+    - job: ManualValidationJob
+      displayName: "Manual Validation"
+      pool:
+        name: server
+      steps:
+        - task: ManualValidation@1
+          displayName: "Manual Validation"
+          inputs:
+            notifyUsers: '2007.jaydeep@gmail.com'
+            approvers: '2007.jaydeep@gmail.com'
+            instructions: 'Kindly Check & Approve'
+
+# ---------------- Stage 4: Terraform Apply ----------------
+- stage: TerraformApply
+  displayName: "Terraform Apply"
+  jobs:
+    - job: TerraformApplyJob
+      displayName: "Terraform Apply Job"
+      pool:
+        name: jay
+      steps:
+        - task: TerraformTask@5
+          displayName: 'Terraform Init'
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(working-path)'
+            backendServiceArm: 'jay'
+            backendAzureRmResourceGroupName: 'jaydeep_rg'
+            backendAzureRmStorageAccountName: 'jaydeepsa'
+            backendAzureRmContainerName: 'tfstate'
+            backendAzureRmKey: 'terraform.tfstate'
+
+        - task: TerraformTask@5
+          displayName: 'Terraform Apply'
+          inputs:
+            provider: 'azurerm'
+            command: 'apply'
+            workingDirectory: '$(working-path)'
+            commandOptions: '-auto-approve'
+            environmentServiceNameAzureRM: 'jay'
