@@ -4,18 +4,18 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:   # Manual trigger option
+  workflow_dispatch:
 
 jobs:
   terraform:
-    runs-on: gt-infra
+    runs-on: [self-hosted, gt-infra]
 
     permissions:
-      id-token: write   # Required for OIDC
-      contents: read    # To checkout repo
+      id-token: write
+      contents: read
 
     steps:
-      # Step 1: Checkout code
+      # Step 1: Checkout
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -23,9 +23,9 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.9.8   # ya jo version tum use karte ho
+          terraform_version: 1.9.8   # ya jo version tum use karna chaho
 
-      # Step 3: Azure Login via OIDC
+      # Step 3: Azure Login (OIDC)
       - name: Azure Login (OIDC)
         uses: azure/login@v2
         with:
@@ -33,19 +33,23 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # Step 4: Terraform Init
+      # Step 4: Terraform Init (inside Dev folder)
       - name: Terraform Init
+        working-directory: ./Dev
         run: terraform init
 
       # Step 5: Terraform Validate
       - name: Terraform Validate
+        working-directory: ./Dev
         run: terraform validate
 
       # Step 6: Terraform Plan
       - name: Terraform Plan
-        run: terraform plan
+        working-directory: ./Dev
+        run: terraform plan 
 
-      # Step 7: Terraform Apply (only on main branch)
+      # Step 7: Terraform Apply (only for main branch)
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve
+        working-directory: ./Dev
+        run: terraform apply -auto-approve 
