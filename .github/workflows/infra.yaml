@@ -1,1 +1,51 @@
+name: Terraform Azure OIDC Pipeline
 
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:   # Manual trigger option
+
+jobs:
+  terraform:
+    runs-on: gt-infra
+
+    permissions:
+      id-token: write   # Required for OIDC
+      contents: read    # To checkout repo
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8   # ya jo version tum use karte ho
+
+      # Step 3: Azure Login via OIDC
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Step 4: Terraform Init
+      - name: Terraform Init
+        run: terraform init
+
+      # Step 5: Terraform Validate
+      - name: Terraform Validate
+        run: terraform validate
+
+      # Step 6: Terraform Plan
+      - name: Terraform Plan
+        run: terraform plan
+
+      # Step 7: Terraform Apply (only on main branch)
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve
