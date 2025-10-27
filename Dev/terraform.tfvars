@@ -84,21 +84,21 @@ public_ip_x = {
     sku                 = "Standard"
 
   }
-  "pub-ip_lb" = {
-    name                = "lb-public-ip"
-    resource_group_name = "jaydeep_rg1"
-    location            = "Central india"
-    allocation_method   = "Static"
-    sku                 = "Standard"
-  }
+  # "pub-ip_lb" = {
+  #   name                = "lb-public-ip"
+  #   resource_group_name = "jaydeep_rg1"
+  #   location            = "Central india"
+  #   allocation_method   = "Static"
+  #   sku                 = "Standard"
+  # }
  
-  "pub-ip_NAT" = {
-    name                = "NAT-public-ip"
-    resource_group_name = "jaydeep_rg1"
-    location            = "Central india"
-    allocation_method   = "Static"
-    sku                 = "Standard"
-  }
+  # "pub-ip_NAT" = {
+  #   name                = "NAT-public-ip"
+  #   resource_group_name = "jaydeep_rg1"
+  #   location            = "Central india"
+  #   allocation_method   = "Static"
+  #   sku                 = "Standard"
+  # }
 
 }
 

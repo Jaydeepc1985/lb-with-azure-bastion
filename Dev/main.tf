@@ -32,29 +32,29 @@ module "public_ip" {
 
 }
 
-module "natgw" {
-  source     = "../NAT-GW"
-  natgw      = var.natgw_x
-  depends_on = [module.Vnet, module.public_ip,module.subnet]
-}
+# module "natgw" {
+#   source     = "../NAT-GW"
+#   natgw      = var.natgw_x
+#   depends_on = [module.Vnet, module.public_ip,module.subnet]
+# }
 
-module "Natgw_assoc" {
-  source = "../Natgw_assoc"
-  natgw_assoc = var.natgw_assoc_x
-  depends_on = [module.Vnet, module.public_ip, module.subnet, module.natgw]
-}
+# module "Natgw_assoc" {
+#   source = "../Natgw_assoc"
+#   natgw_assoc = var.natgw_assoc_x
+#   depends_on = [module.Vnet, module.public_ip, module.subnet, module.natgw]
+# }
 
-module "subnet_assoc" {
-  source = "../Natgw_subnet"
-  subnet_assoc = var.subnet_assoc_x
-  depends_on = [ module.natgw, module.Natgw_assoc ]
-}
+# module "subnet_assoc" {
+#   source = "../Natgw_subnet"
+#   subnet_assoc = var.subnet_assoc_x
+#   depends_on = [ module.natgw, module.Natgw_assoc ]
+# }
 
-module "azure_bastion" {
-  source       = "../azure-bastion"
-  bastion-host = var.bastion-host_x
-  depends_on   = [module.Vnet,module.subnet,module.public_ip]
-}
+# module "azure_bastion" {
+#   source       = "../azure-bastion"
+#   bastion-host = var.bastion-host_x
+#   depends_on   = [module.Vnet,module.subnet,module.public_ip]
+# }
 
 module "nic" {
   source       = "../nic"
@@ -127,12 +127,24 @@ module "NSG-assoc" {
   
 }
 
+# module "flexi_server" {
+#   source       = "../flexi server"
+#   flexi_server = var.flexi_server_x
+#   depends_on   = [module.xyz, module.VM]
+# }
+
 # module "sqlsrv" {
 #   source     = "../sqlsrv"
 #   sql-server = var.sql-server_x
 #   depends_on = [module.abc]
 # }
+
+# module "sqldb" {
+#   source       = "../sqldb"
+#   sql-database = var.sql-database_x
+#   depends_on   = [module.sqlsrv]
 # }
+
 
 # module "key_vaults" {
 #   source                   = "../key-vaults"

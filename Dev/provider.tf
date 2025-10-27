@@ -3,14 +3,14 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "4.41.0"
+      version = "4.47.0"
     }
   }
 }
 # Terraform Provider Block
 provider "azurerm" {
   features {}
-  subscription_id = "845670d0-6329-46a7-97a7-fe36dbdce51b"
+  subscription_id = "98b7163f-e961-4b65-98c2-7a6dc2edf5b7"
 }
 # terraform {
 #   backend "azurerm" {

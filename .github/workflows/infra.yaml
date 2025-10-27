@@ -1,4 +1,4 @@
-name: Terraform Azure OIDC Pipeline
+name: Terraform Deployment
 
 on:
   push:
@@ -8,22 +8,20 @@ on:
 
 jobs:
   terraform:
-    runs-on: [self-hosted, gt-infra]
+    runs-on: self-hosted
 
     permissions:
       id-token: write
       contents: read
 
     steps:
-      # Step 1: Checkout
+      # Step 1: Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Setup Terraform
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.9.8   # ya jo version tum use karna chaho
+      # Step 2: Verify Terraform (use pre-installed version on self-hosted runner)
+      - name: Verify Terraform
+        run: terraform -v
 
       # Step 3: Azure Login (OIDC)
       - name: Azure Login (OIDC)
@@ -33,7 +31,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # Step 4: Terraform Init (inside Dev folder)
+      # Step 4: Terraform Init
       - name: Terraform Init
         working-directory: ./Dev
         run: terraform init
@@ -46,10 +44,10 @@ jobs:
       # Step 6: Terraform Plan
       - name: Terraform Plan
         working-directory: ./Dev
-        run: terraform plan 
+        run: terraform plan
 
       # Step 7: Terraform Apply (only for main branch)
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         working-directory: ./Dev
-        run: terraform apply -auto-approve 
+        run: terraform apply -auto-approve

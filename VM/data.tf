@@ -15,8 +15,8 @@ data "azurerm_key_vault_secret" "admin-login" {
   key_vault_id        = data.azurerm_key_vault.kvi.id
 }
 data "azurerm_key_vault" "kvi" {
-  name                = "jaydeep-key-vault"
-  resource_group_name = "jaydeep_rg"
+  name                = "jaydeep-key-vault2"
+  resource_group_name = "jaydeep_rg3"
 }
 data "azurerm_key_vault_secret" "vm-password" {
   name                = "vm-password"
